@@ -44,7 +44,7 @@ intents.matches('whatIsWeather',[ function(session,args){
 			body = JSON.parse(body);
 			//console.log(body);
 			temp = body.current.temp_c;
-			session.send("It's " + temp + " degrees celsius in " + city_name); });
+			session.send("It's " + temp + " degree celsius in " + city_name); });
 	} else {
 		builder.Prompts.text(session, 'Which city do you want the weather for?');
 	}
@@ -55,6 +55,6 @@ intents.matches('whatIsWeather',[ function(session,args){
 		body = JSON.parse(body);
 		//console.log(body);
 		temp = body.current.temp_c;
-		session.send("It's " + temp + " degrees celsius in " + city_name);
+		session.send("It's " + temp + " degree celsius in " + city_name);
 	});
 } ]);
