@@ -25,7 +25,7 @@ server.post('/api/messages', connector.listen());
 var bot = new builder.UniversalBot(connector);
 
 // Client access token from api.ai
-var recognizer = new apiairecognizer("77eaa15906704947a7f481f4d51f1cf5");
+var recognizer = new apiairecognizer( process.env.API_AI_TOKEN );
 
 var intents = new builder.IntentDialog({
 	recognizers: [recognizer]
@@ -38,7 +38,7 @@ intents.matches('whatIsWeather',[ function(session,args){
 
 	if (city) {
 		var city_name = city.entity;
-		var url = "http://api.apixu.com/v1/current.json?key=7e212e10586f48b2bc313623170909&q=" + city_name;
+		var url = "http://api.apixu.com/v1/current.json?key=" + process.env.APIXU_KEY + "&q=" + city_name;
 
 		request(url,function(error,response,body) {
 			body = JSON.parse(body);
@@ -50,7 +50,7 @@ intents.matches('whatIsWeather',[ function(session,args){
 	}
 }, function(session,results){
 	var city_name = results.response;
-	var url = "http://api.apixu.com/v1/current.json?key=7e212e10586f48b2bc313623170909&q=" + city_name;
+	var url = "http://api.apixu.com/v1/current.json?key=" + process.env.APIXU_KEY + "&q=" + city_name;
 	request(url,function(error,response,body) {
 		body = JSON.parse(body);
 		//console.log(body);
