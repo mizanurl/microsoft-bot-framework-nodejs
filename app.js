@@ -1,11 +1,5 @@
-var builder = require('botbuilder');
 var restify = require('restify');
-var apiairecognizer = require('api-ai-recognizer');
-var request = require('request');
-
-//=========================================================
-// Bot Setup
-//=========================================================
+var builder = require('botbuilder');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -13,7 +7,7 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 	console.log('%s listening to %s', server.name, server.url);
 });
 
-// Create chat bot
+// Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
 	appId: process.env.MICROSOFT_APP_ID,
 	appPassword: process.env.MICROSOFT_APP_PASSWORD
@@ -22,54 +16,7 @@ var connector = new builder.ChatConnector({
 // Listen for messages from users
 server.post('/api/messages', connector.listen());
 
-var bot = new builder.UniversalBot(connector);
-
-// Client access token from api.ai
-var recognizer = new apiairecognizer( process.env.API_AI_TOKEN );
-
-var intents = new builder.IntentDialog({
-	recognizers: [recognizer]
+// Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
+var bot = new builder.UniversalBot(connector, function (session) {
+	session.send("You said: %s", session.message.text);
 });
-
-bot.dialog('/',intents);
-
-intents.matches('whatIsWeather',[ function(session,args){
-	var city = builder.EntityRecognizer.findEntity(args.entities,'cities');
-
-	if (city) {
-		var city_name = city.entity;
-		var url = "http://api.apixu.com/v1/current.json?key=" + process.env.APIXU_KEY + "&q=" + city_name;
-
-		request(url,function(error,response,body) {
-
-			if (error) {
-				console.log("Error ocured on the first waterfall");
-				console.log(error.message);
-
-				session.send("Error ocured on the first waterfall: " + error.message);
-			}
-
-			body = JSON.parse(body);
-			temp = body.current.temp_c;
-			session.send("It's " + temp + " degree celsius in " + city_name); });
-	} else {
-		builder.Prompts.text(session, 'Which city do you want the weather for?');
-	}
-}, function(session,results){
-	var city_name = results.response;
-	var url = "http://api.apixu.com/v1/current.json?key=" + process.env.APIXU_KEY + "&q=" + city_name;
-	request(url,function(error,response,body) {
-
-		if (error) {
-			console.log("Error ocured on the second waterfall");
-			console.log(error.message);
-			
-			session.send("Error ocured on the second waterfall: " + error.message);
-		}
-
-		body = JSON.parse(body);
-		//console.log(body);
-		temp = body.current.temp_c;
-		session.send("It's " + temp + " degree celsius in " + city_name);
-	});
-} ]);
