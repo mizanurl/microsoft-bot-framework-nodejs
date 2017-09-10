@@ -41,8 +41,15 @@ intents.matches('whatIsWeather',[ function(session,args){
 		var url = "http://api.apixu.com/v1/current.json?key=" + process.env.APIXU_KEY + "&q=" + city_name;
 
 		request(url,function(error,response,body) {
+
+			if (error) {
+				console.log("Error ocured on the first waterfall");
+				console.log(error.message);
+
+				session.send("Error ocured on the first waterfall: " + error.message);
+			}
+
 			body = JSON.parse(body);
-			//console.log(body);
 			temp = body.current.temp_c;
 			session.send("It's " + temp + " degree celsius in " + city_name); });
 	} else {
@@ -52,6 +59,14 @@ intents.matches('whatIsWeather',[ function(session,args){
 	var city_name = results.response;
 	var url = "http://api.apixu.com/v1/current.json?key=" + process.env.APIXU_KEY + "&q=" + city_name;
 	request(url,function(error,response,body) {
+
+		if (error) {
+			console.log("Error ocured on the second waterfall");
+			console.log(error.message);
+			
+			session.send("Error ocured on the second waterfall: " + error.message);
+		}
+
 		body = JSON.parse(body);
 		//console.log(body);
 		temp = body.current.temp_c;
